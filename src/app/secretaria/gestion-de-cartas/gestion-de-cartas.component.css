@@ -10,3 +10,7 @@
     padding: 0.3rem !important;
     font-size: 0.8rem !important;
 }
+.p-button-raised {
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  

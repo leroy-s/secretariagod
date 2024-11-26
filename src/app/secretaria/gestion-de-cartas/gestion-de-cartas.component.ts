@@ -1,77 +1,100 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown';
+import { LineasService } from '../services/LineasServicest.service'; // Importa el servicio para obtener estudiantes
+import { Estudiantest } from '../models/Estudiantest'; // Modelo del estudiante
+import { CommonModule } from '@angular/common'; // Asegúrate de que esté importado
+import { EscuelaLineasService } from '../services/escuela-linea.service';
 import { InputTextModule } from 'primeng/inputtext';
-import { ListboxModule } from 'primeng/listbox';
-import { MessageModule } from 'primeng/message';
-import { TableModule } from 'primeng/table';
-import { ToastModule } from 'primeng/toast';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'app-gestion-de-cartas',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    CardModule,
-    TableModule,
-    DialogModule,
-    ButtonModule,
-    InputTextModule,
-    ToastModule,
-    MessageModule,
-    DropdownModule,
-    AvatarModule,
-    ListboxModule,
-  ],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, AvatarModule, DropdownModule],
   templateUrl: './gestion-de-cartas.component.html',
   styleUrls: ['./gestion-de-cartas.component.css'],
 })
-export class GestionDeCartasComponent {
-  userCareer = 'Ingeniería de Sistemas';
+export class GestionDeCartasComponent implements OnInit {
+  userCareer: string | null = null;
   period = '2024-1';
   showList = false;
   searchQuery = '';
-  itemList = Array(10).fill({ name: 'List item' }); // Simulación de datos
-  selectedItem: any = null; // Variable para almacenar el ítem seleccionado
-  showTooltip = false; // Controla la visualización del mensaje de advertencia
+  lineas: { id: number, nombre: string }[] = [];  // Se asegura de que los datos de líneas estén presentes
+  estudiantes: Estudiantest[] = [];  // Lista de estudiantes obtenida de la API
+  selectedLinea: number | null = null;  // ID de la línea seleccionada
+  selectedStudent: Estudiantest | null = null;  // Aquí agregamos la propiedad selectedStudent
+  showTooltip = false;
 
-  // Filtra los elementos según el query de búsqueda
-  get filteredItems() {
-    return this.itemList.filter(item => item.name.toLowerCase().includes(this.searchQuery.toLowerCase()));
+  constructor(
+    private lineasService: LineasService,
+    private escuelaLineasService: EscuelaLineasService
+  ) {}
+
+  ngOnInit() {
+    this.getEscuelaLineas(); // Obtener las líneas de la carrera
   }
 
-  // Muestra la vista de lista y oculta las columnas de carrera
-  showListView() {
+  // Método para obtener las líneas de la carrera
+  getEscuelaLineas(): void {
+    const carreraId = 1;
+    this.lineasService.getEscuelaLineas(carreraId).subscribe(
+      (data: any) => {
+        this.userCareer = data.carrera;
+        this.lineas = data.lineasNombres.map((linea: any) => ({
+          id: linea.id,
+          nombre: linea.nombre,
+        }));
+      },
+      (error) => {
+        console.error('Error al obtener las líneas:', error);
+      }
+    );
+  }
+  
+  // Muestra la lista de estudiantes para la línea seleccionada
+  showListView(lineaId: number): void {
+    this.selectedLinea = lineaId;
     this.showList = true;
+    this.lineasService.getEstudiantesPorLinea(lineaId).subscribe(
+      (data: Estudiantest[]) => {
+        this.estudiantes = data;  // Asigna los estudiantes obtenidos
+      },
+      (error) => {
+        console.error('Error al obtener los estudiantes:', error);
+      }
+    );
   }
 
-  // Función para regresar a la vista principal
+  // Método para filtrar estudiantes
+  get filteredItems() {
+    return this.estudiantes.filter(estudiante =>
+      `${estudiante.nombre} ${estudiante.apellido}`.toLowerCase().includes(this.searchQuery.toLowerCase())
+    );
+  }
+
+  // Regresar a la vista de selección de línea
   onBack() {
     this.showList = false;
-    this.selectedItem = null; // Reinicia la selección al regresar
+    this.selectedLinea = null;
+    this.estudiantes = [];
   }
 
-  // Función para seleccionar un ítem de la lista
-  selectItem(item: any) {
-    this.selectedItem = item;
-    this.showTooltip = false; // Oculta el mensaje de advertencia al seleccionar un ítem
+  // Seleccionar un estudiante de la lista
+  selectItem(item: Estudiantest) {
+    this.selectedStudent = item; // Asigna el estudiante seleccionado
   }
 
-  // Función para manejar el evento de entrada del mouse en el contenedor vacío
+  // Control para mostrar el tooltip cuando el contenedor está vacío
   onEmptyContainerMouseEnter() {
-    if (!this.selectedItem) {
-      this.showTooltip = true; // Muestra el mensaje de advertencia si no hay ningún ítem seleccionado
+    if (!this.selectedStudent) {
+      this.showTooltip = true; // Muestra el tooltip si no hay estudiante seleccionado
     }
   }
 
-  // Función para manejar el evento de salida del mouse del contenedor vacío
+  // Control para ocultar el tooltip cuando el mouse sale del contenedor vacío
   onEmptyContainerMouseLeave() {
-    this.showTooltip = false; // Oculta el mensaje de advertencia al salir del contenedor vacío
+    this.showTooltip = false; // Oculta el tooltip
   }
 }

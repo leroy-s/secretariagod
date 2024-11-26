@@ -18,7 +18,6 @@ import { AdministrarDocumentosComponent } from './practicante/administrar-docume
 import { MisEvaluacionesComponent } from './practicante/mis-evaluaciones/mis-evaluaciones.component';
 import { CorreoComponent } from './practicante/correo/correo.component';
 import { SidebarsecretariaComponent } from './secretaria/sidebarsecretaria/sidebarsecretaria.component';
-import { GestionDeCartasComponent } from './secretaria/gestion-de-cartas/gestion-de-cartas.component';
 import { GestionReportesComponent } from './secretaria/gestion-reportes/gestion-reportes.component';
 import { DirectorComponent } from './director/director.component';
 import { SidebarDirecComponent } from './director/sidebar-direc/sidebar-direc.component';
@@ -33,6 +32,7 @@ import { CartaPresentacionComponent } from './coordinador/carta-presentacion/car
 import { RequisitosFinalesComponent } from './coordinador/requisitos-finales/requisitos-finales.component';
 import { PracticanteEpComponent } from './coordinador/practicante-ep/practicante-ep.component';
 import { HomeComponent } from './coordinador/home/home.component';
+import { GestionDeCartasComponent } from './secretaria/gestion-de-cartas/gestion-de-cartas.component';
 
 
 export const routes: Routes = [
